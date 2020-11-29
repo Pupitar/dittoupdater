@@ -1,0 +1,19 @@
+---
+main:
+  loop_sleep: 3600
+  discord_username: Dittos
+  discord_message: "**New Ditto disguises!**\n`{}`"  # {} is a list of ditto disguises
+  discord_webhook: https://discord.com/api/webhooks/xxx/xxx-xxx  # optional
+  sentry_dns:
+  user_agent: "pogodittoupdater/0.1"
+  log_level: INFO
+
+# optional
+# if you want auto update enable it and fill details
+rdm_db:
+  enabled: true
+  host: 127.0.0.1
+  user: rdm_user
+  password: supersecretpassword
+  name: rdm
+  connect_timeout: 5
