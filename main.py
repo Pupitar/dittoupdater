@@ -15,7 +15,7 @@ sentry_sdk = None
 if config["main"]["sentry_dns"]:
     import sentry_sdk
 
-    sentry_sdk.init(config["main"]["sentry_dns"], traces_sample_rate=1.0)
+    sentry_sdk.init(config["main"]["sentry_dns"], traces_sample_rate=1.0, ignore_errors=[KeyboardInterrupt])
 
 # enable logging
 logging.basicConfig(level=config["main"]["log_level"])
