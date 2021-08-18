@@ -1,9 +1,10 @@
-import MySQLdb as msd
 import json
 import logging
-import re
-import requests
 import time
+from typing import Tuple
+
+import MySQLdb as msd
+import requests
 import yaml
 from lxml import html
 
@@ -14,7 +15,9 @@ config = yaml.safe_load(open("config.yml"))
 sentry_sdk = None
 if config["main"]["sentry_dns"]:
     import sentry_sdk
+    from sentry_sdk.integrations.logging import ignore_logger
 
+    ignore_logger(__name__)
     sentry_sdk.init(config["main"]["sentry_dns"], traces_sample_rate=1.0, ignore_errors=[KeyboardInterrupt])
 
 # enable logging
@@ -67,8 +70,9 @@ def send_alert(message: str) -> None:
         log.error(f'[Discord] Failed to sent: {data["content"]}! Exception {e}')
 
 
-def compare_changed(new_data: dict) -> dict:
+def compare_changed(new_data: dict) -> Tuple[dict, dict]:
     global old_data
+    tmp_data = old_data
     output = None
 
     if not old_data:
@@ -77,7 +81,7 @@ def compare_changed(new_data: dict) -> dict:
         output = new_data
         old_data = new_data
 
-    return output
+    return output, tmp_data
 
 
 def update_db(new_data: dict) -> None:
@@ -110,10 +114,13 @@ def update_db(new_data: dict) -> None:
 
 def main():
     new_data = fetch_data()
-    new_ditto = compare_changed(new_data)
+    new_ditto, old_ditto = compare_changed(new_data)
 
     if new_ditto:
-        message = config["main"]["discord_message"].format(', '.join(new_ditto.values()))
+        message = config["main"]["discord_message"].format(
+            ', '.join(old_ditto.values()),
+            ', '.join(new_ditto.values())
+        )
         log.info(message)
 
         if config["main"]["discord_webhook"]:
