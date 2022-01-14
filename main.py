@@ -1,9 +1,8 @@
 import json
 import logging
 import time
-from typing import Tuple
+from typing import Tuple, Text, Dict
 
-import MySQLdb as msd
 import requests
 import yaml
 from lxml import html
@@ -29,7 +28,7 @@ old_data = {}
 ditto_url = "https://leekduck.com/FindDitto/"
 
 
-def fetch_data() -> dict:
+def fetch_data() -> Dict:
     r = requests.get(ditto_url, headers={"User-Agent": config["main"]["user_agent"]})
     tree = html.fromstring(r.content)
     output, poke_ids, poke_names = {}, [], []
@@ -48,7 +47,7 @@ def fetch_data() -> dict:
     return output
 
 
-def send_alert(message: str) -> None:
+def send_alert(message: Text) -> None:
     data = {
         "content": message,
         "username": config["main"]["discord_username"],
@@ -70,7 +69,7 @@ def send_alert(message: str) -> None:
         log.error(f'[Discord] Failed to sent: {data["content"]}! Exception {e}')
 
 
-def compare_changed(new_data: dict) -> Tuple[dict, dict]:
+def compare_changed(new_data: Dict) -> Tuple[Dict, Dict]:
     global old_data
     tmp_data = old_data
     output = None
@@ -84,35 +83,7 @@ def compare_changed(new_data: dict) -> Tuple[dict, dict]:
     return output, tmp_data
 
 
-def update_db(new_data: dict) -> None:
-    con = msd.connect(
-        host=config["rdm_db"]["host"],
-        user=config["rdm_db"]["user"],
-        passwd=config["rdm_db"]["password"],
-        db=config["rdm_db"]["name"],
-        connect_timeout=config["rdm_db"]["connect_timeout"],
-    )
-
-    cur = con.cursor()
-
-    sql = """
-        UPDATE
-            `metadata`
-        SET
-            `value` = %(ditto_ids)s
-        WHERE
-            `key` = 'DITTO_DISGUISES';
-    """
-    val = ",".join([str(r) for r in new_data.keys()])
-
-    log.debug(f"Query: {sql} Values: {val}")
-    cur.execute(sql, {"ditto_ids": val})
-
-    con.commit()
-    con.close()
-
-
-def main():
+def main() -> None:
     new_data = fetch_data()
     new_ditto, old_ditto = compare_changed(new_data)
 
@@ -127,13 +98,9 @@ def main():
             send_alert(message)
             log.info("Discord alert sent.")
 
-        if config["rdm_db"]["enabled"]:
-            update_db(new_ditto)
-            log.info("Db updated.")
-
 
 if __name__ == '__main__':
-    log.info("Started pogodittoupdater \\o/")
+    log.info("Started notiditto \\o/")
 
     while True:
         try:

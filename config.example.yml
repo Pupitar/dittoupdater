@@ -2,18 +2,8 @@
 main:
   loop_sleep: 3600
   discord_username: Dittos
-  discord_message: "**New Ditto disguises!**\n`{}`"  # {} is a list of ditto disguises
-  discord_webhook: https://discord.com/api/webhooks/xxx/xxx-xxx  # optional
+  discord_message: "**<:ditto:779008286192173076> disguises change!**\n**Before** `{}`\n**After** `{}`"
+  discord_webhook: https://discord.com/api/webhooks/xxx/xxx-xxx
   sentry_dns:
-  user_agent: "pogodittoupdater/0.1"
+  user_agent: "notiditto/0.2"
   log_level: INFO
-
-# optional
-# if you want auto update enable it and fill details
-rdm_db:
-  enabled: true
-  host: 127.0.0.1
-  user: rdm_user
-  password: supersecretpassword
-  name: rdm
-  connect_timeout: 5
