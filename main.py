@@ -1,3 +1,4 @@
+import os
 import json
 import logging
 import time
@@ -8,7 +9,8 @@ import yaml
 from lxml import html
 
 # load config
-config = yaml.safe_load(open("config.yml"))
+script_path = os.path.dirname(os.path.abspath(__file__))
+config = yaml.safe_load(open(os.path.join(script_path, "config.yml")))
 
 # if key is provided, import and initialize sentry
 sentry_sdk = None
